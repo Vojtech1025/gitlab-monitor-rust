@@ -12,6 +12,7 @@ use config::load_config;
 use gitlab::fetch_all_releases;
 use state::AppState;
 use tray::{install_tray, update_tray_icon};
+use tauri_plugin_global_shortcut::{Builder as ShortcutBuilder, ShortcutState};
 
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
@@ -22,7 +23,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
-        // Intercept window close requests to hide the window instead of quitting the app
+        // Global shortcut plugin will be initialised in setup with our custom handler.
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 // Prevent the default close behavior and hide the window
@@ -61,6 +62,31 @@ pub fn run() {
 
             // Tray installation
             install_tray(app.handle())?;
+
+            // Register global shortcut CTRL+ALT+G to toggle the window visibility
+            {
+                let app_handle_toggle = app.handle();
+                use tauri::Manager;
+
+                app_handle_toggle.plugin(
+                    ShortcutBuilder::new()
+                        .with_shortcuts(["Alt+G"])?
+                        .with_handler(move |app, _shortcut, event| {
+                            if event.state == ShortcutState::Pressed {
+                                let windows = app.webview_windows();
+                                if let Some(window) = windows.values().next() {
+                                    if window.is_visible().unwrap_or(false) {
+                                        let _ = window.hide();
+                                    } else {
+                                        let _ = window.show();
+                                        let _ = window.set_focus();
+                                    }
+                                }
+                            }
+                        })
+                        .build(),
+                )?;
+            }
 
             // Background refresh task
             let app_handle_bg = app.handle().clone();
