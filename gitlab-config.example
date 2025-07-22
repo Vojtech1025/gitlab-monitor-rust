@@ -1,0 +1,6 @@
+# GitLab API Configuration
+# Copy this file to .env in the project root and update with your values
+
+GITLAB_API_TOKEN=<your-api-token>
+GITLAB_BASE_URL=<your-base-url>
+GITLAB_PROJECTS=<your-projects>
