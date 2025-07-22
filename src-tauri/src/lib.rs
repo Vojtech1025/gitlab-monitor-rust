@@ -11,6 +11,7 @@ use commands::*;
 use config::load_config;
 use gitlab::fetch_all_releases;
 use state::AppState;
+use tauri_plugin_global_shortcut::{Builder as ShortcutBuilder, ShortcutState};
 use tray::{install_tray, update_tray_icon};
 
 use std::sync::Arc;
@@ -53,6 +54,31 @@ pub fn run() {
 
             // Tray installation
             install_tray(app.handle())?;
+
+            // Register global shortcut CTRL+ALT+G to toggle the window visibility
+            {
+                let app_handle_toggle = app.handle();
+                use tauri::Manager;
+
+                app_handle_toggle.plugin(
+                    ShortcutBuilder::new()
+                        .with_shortcuts(["Alt+G"])?
+                        .with_handler(move |app, _shortcut, event| {
+                            if event.state == ShortcutState::Pressed {
+                                let windows = app.webview_windows();
+                                if let Some(window) = windows.values().next() {
+                                    if window.is_visible().unwrap_or(false) {
+                                        let _ = window.hide();
+                                    } else {
+                                        let _ = window.show();
+                                        let _ = window.set_focus();
+                                    }
+                                }
+                            }
+                        })
+                        .build(),
+                )?;
+            }
 
             // Set up window close handler to hide to tray instead of closing
             let windows = app.webview_windows();
