@@ -83,6 +83,16 @@ After the build finishes you'll find:
 
 ---
 
+## 📝 TODO
+
+- **Fix installer .env integration**: The current installers (`.msi` and portable `.exe`) do not include the `.env` configuration file, making the installed application non-functional out of the box. Need to:
+  - Include `.env.example` or `.env` template in the installer package
+  - Update build configuration to bundle configuration files with the executable
+  - Consider alternative approaches like creating `.env` on first run or using a setup wizard
+  - Update installation instructions to reflect the configuration step post-install
+
+---
+
 ## 👐 Contributing
 Pull requests and issues are welcome! Please follow the existing code style and make sure `cargo fmt && cargo clippy` pass.
 
