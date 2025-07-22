@@ -1,0 +1,6 @@
+# GitLab API Configuration
+# Copy this file to .env in the project root and update with your values
+
+GITLAB_API_TOKEN=cF6aXozE2ZqtiPstEtx4
+GITLAB_BASE_URL=https://gitlab.e-btlnet.local
+GITLAB_PROJECTS=pu4sw/fyzio/mocap/bodylogic,pu4sw/fyzio/mocap/oscilloscope,pu4sw/fyzio/mocap/physiohub,pu4sw/fyzio/mocap/physiocommon,pu4sw/fyzio/mocap/rucoon,pu4sw/fyzio/mocap/bootstrap,pu4sw/fyzio/mocap/unityvisuals,pu4sw/fyzio/mocap/mediapipe 

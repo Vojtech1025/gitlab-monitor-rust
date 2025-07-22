@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitLab Releases Monitor</title>
+    <script type="module" src="/main.js" defer></script>
+  </head>
+
+  <body>
+    <main class="container">
+             <header class="header">
+         <div class="header-left">
+           <svg class="gitlab-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+             <path d="M22.65 14.39L12 22.13L1.35 14.39C1.05 14.17 0.9 13.8 1.03 13.46L3.76 5.79C3.89 5.45 4.25 5.25 4.61 5.36L7.8 6.24C8.16 6.35 8.41 6.7 8.41 7.08V11.5L11.88 21.34C11.95 21.55 12.05 21.55 12.12 21.34L15.59 11.5V7.08C15.59 6.7 15.84 6.35 16.2 6.24L19.39 5.36C19.75 5.25 20.11 5.45 20.24 5.79L22.97 13.46C23.1 13.8 22.95 14.17 22.65 14.39Z" fill="#FC6D26"/>
+             <path d="M12 22.13L15.59 11.5V7.08C15.59 6.7 15.84 6.35 16.2 6.24L19.39 5.36C19.75 5.25 20.11 5.45 20.24 5.79L22.97 13.46C23.1 13.8 22.95 14.17 22.65 14.39L12 22.13Z" fill="#E24329"/>
+             <path d="M12 22.13L8.41 11.5V7.08C8.41 6.7 8.16 6.35 7.8 6.24L4.61 5.36C4.25 5.25 3.89 5.45 3.76 5.79L1.03 13.46C0.9 13.8 1.05 14.17 1.35 14.39L12 22.13Z" fill="#FC6D26"/>
+           </svg>
+           <h1>GitLab Releases Monitor</h1>
+         </div>
+         <div class="header-controls">
+          <button id="refresh-button" class="refresh-button" title="Refresh (R)">
+            <span class="refresh-icon">⟳</span>
+            Refresh
+          </button>
+          <button id="hide-button" class="hide-button" title="Hide to Tray">
+            <span class="hide-icon">—</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Loading releases...</p>
+      </div>
+
+      <div class="error" id="error" style="display: none;">
+        <p id="error-message">Failed to load releases</p>
+        <button id="retry-button" class="retry-button">Retry</button>
+      </div>
+
+             <div class="releases-container" id="releases-container">
+         <div class="releases-header">
+           <div class="column-header">Project</div>
+           <div class="column-header">Release</div>
+           <div class="column-header">Attribute</div>
+           <div class="column-header">Version</div>
+           <div class="column-header">Date</div>
+         </div>
+        <div class="releases-list" id="releases-list">
+          <!-- Releases will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <div class="empty-state" id="empty-state" style="display: none;">
+        <div class="empty-icon">📦</div>
+        <h3>No releases found</h3>
+        <p>Check your configuration and try refreshing.</p>
+      </div>
+
+             <footer class="footer">
+         <div class="shortcuts">
+           <span><kbd>R</kbd> Refresh</span>
+         </div>
+         <div class="last-updated" id="last-updated"></div>
+       </footer>
+    </main>
+  </body>
+</html>

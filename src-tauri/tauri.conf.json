@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "gitlab-monitor",
+  "version": "0.1.0",
+  "identifier": "com.gitlab-monitor.app",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "GitLab Releases Monitor",
+        "width": 1200,
+        "height": 800,
+        "visible": false,
+        "skipTaskbar": true,
+        "resizable": true,
+        "minimizable": true,
+        "maximizable": true,
+        "center": true
+      }
+    ],
+
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon.ico"
+    ]
+  }
+}
