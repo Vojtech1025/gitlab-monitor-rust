@@ -14,7 +14,7 @@ use state::AppState;
 use tray::{install_tray, update_tray_icon};
 
 use std::sync::Arc;
-use tauri::{Emitter, Manager};
+use tauri::{Emitter, Manager, WindowEvent};
 use tokio::sync::Mutex;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -53,6 +53,19 @@ pub fn run() {
 
             // Tray installation
             install_tray(app.handle())?;
+
+            // Set up window close handler to hide to tray instead of closing
+            let windows = app.webview_windows();
+            if let Some(window) = windows.values().next() {
+                let window_clone = window.clone();
+                window.on_window_event(move |event| {
+                    if let WindowEvent::CloseRequested { api, .. } = event {
+                        api.prevent_close();
+                        let _ = window_clone.hide();
+                        println!("Window hidden to tray via close button");
+                    }
+                });
+            }
 
             // Background refresh task
             let app_handle_bg = app.handle().clone();

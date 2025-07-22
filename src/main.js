@@ -2,7 +2,6 @@ const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
 
 let refreshButtonEl;
-let hideButtonEl;
 let retryButtonEl;
 let releasesListEl;
 let loadingEl;
@@ -202,15 +201,7 @@ async function openReleaseUrl(url) {
   }
 }
 
-// Hide window to tray
-async function hideToTray() {
-  try {
-    await invoke("hide_main_window");
-    console.log("Window hidden to tray");
-  } catch (error) {
-    console.error("Failed to hide window:", error);
-  }
-}
+
 
 // Refresh releases
 async function refreshReleases() {
@@ -255,7 +246,6 @@ function handleKeyboard(event) {
 window.addEventListener("DOMContentLoaded", async () => {
   // Get DOM elements
   refreshButtonEl = document.querySelector("#refresh-button");
-  hideButtonEl = document.querySelector("#hide-button");
   retryButtonEl = document.querySelector("#retry-button");
   releasesListEl = document.querySelector("#releases-list");
   loadingEl = document.querySelector("#loading");
@@ -267,7 +257,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   
   // Add event listeners
   refreshButtonEl.addEventListener("click", refreshReleases);
-  hideButtonEl.addEventListener("click", hideToTray);
   retryButtonEl.addEventListener("click", refreshReleases);
   
   // Add keyboard event listener
