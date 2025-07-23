@@ -1,0 +1,71 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - 'v*'          # run only on version tags, e.g. v1.2.3
+  workflow_dispatch:   # …or trigger manually from the Actions tab
+
+jobs:
+  build:
+    permissions:
+      contents: write        # needed so the action can create a release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows (portable exe + NSIS + MSI)
+          - platform: windows-latest
+            args: ''
+          # Linux x64 (deb + AppImage)
+          - platform: ubuntu-22.04
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- Linux-only system packages ----------
+      - name: Install Linux deps
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          # v1 needs only 4.0; v2 needs both 4.0 & 4.1.  Keep both → works on both.
+          sudo apt-get install -y \
+            libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev \
+            libappindicator3-dev librsvg2-dev patchelf
+
+      # ---------- Node (only if you have a frontend build step) ----------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*      # or “20” if you prefer
+          cache: 'npm'             # yarn | pnpm | npm
+
+      - name: Install JS deps
+        run: npm ci                # or yarn install / pnpm install
+
+      # ---------- Rust toolchain ----------
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          override: true
+          profile: minimal
+
+      # Cache Cargo build artefacts
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      # ---------- Build & Release with tauri-action ----------
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}                       # e.g. v1.2.3
+          releaseName: 'GitLab Monitor ${{ github.ref_name }}'
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}            # additional cargo tauri build flags if you need them
