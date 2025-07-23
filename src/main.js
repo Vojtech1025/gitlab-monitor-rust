@@ -1,5 +1,6 @@
 const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
+const { appWindow } = window.__TAURI__.window;
 
 let refreshButtonEl;
 let retryButtonEl;
@@ -258,6 +259,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Add event listeners
   refreshButtonEl.addEventListener("click", refreshReleases);
   retryButtonEl.addEventListener("click", refreshReleases);
+  
+  // Intercept the native window close action and hide the window instead of quitting
+  appWindow.onCloseRequested(({ preventDefault }) => {
+    preventDefault();
+    hideToTray();
+  });
   
   // Add keyboard event listener
   document.addEventListener("keydown", handleKeyboard);

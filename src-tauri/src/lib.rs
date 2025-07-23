@@ -13,6 +13,7 @@ use gitlab::fetch_all_releases;
 use state::AppState;
 use tauri_plugin_global_shortcut::{Builder as ShortcutBuilder, ShortcutState};
 use tray::{install_tray, update_tray_icon};
+use tauri_plugin_global_shortcut::{Builder as ShortcutBuilder, ShortcutState};
 
 use std::sync::Arc;
 use tauri::{Emitter, Manager, WindowEvent};
@@ -23,6 +24,14 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
+        // Global shortcut plugin will be initialised in setup with our custom handler.
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                // Prevent the default close behavior and hide the window
+                api.prevent_close();
+                let _ = window.hide();
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             get_releases,
             refresh_releases,
@@ -113,7 +122,8 @@ pub fn run() {
                     }
                 }
 
-                let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(300));
+                // Auto-refresh every minute
+                let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(60));
                 interval.tick().await;
 
                 loop {
