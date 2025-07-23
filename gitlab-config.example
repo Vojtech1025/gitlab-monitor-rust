@@ -1,6 +1,26 @@
-# GitLab API Configuration
-# Copy this file to .env in the project root and update with your values
+# GitLab Releases Monitor Configuration Template
+# 
+# IMPORTANT: This file must be RENAMED to ".env" before use!
+# 
+# Steps to configure:
+# 1. COPY this file in the same directory
+# 2. RENAME the copy to ".env" (including the dot at the beginning)  
+# 3. EDIT the .env file with your actual GitLab information
+# 4. RESTART the application
 
+# Your GitLab Personal Access Token with 'read_api' scope
+# Get one from: https://gitlab.com/-/profile/personal_access_tokens (or your GitLab instance)
 GITLAB_API_TOKEN=<your-api-token>
+
+# Your GitLab instance URL (remove this line to use gitlab.com)
 GITLAB_BASE_URL=<your-base-url>
+
+# Comma-separated list of GitLab projects to monitor
+# Format: group/project1,group/project2,user/project3
+# Example: mycompany/backend,mycompany/frontend,john.doe/personal-project
 GITLAB_PROJECTS=<your-projects>
+
+# Example configuration:
+# GITLAB_API_TOKEN=glpat-xxxxxxxxxxxxxxxxxxxx
+# GITLAB_BASE_URL=https://gitlab.com
+# GITLAB_PROJECTS=mygroup/project1,mygroup/project2

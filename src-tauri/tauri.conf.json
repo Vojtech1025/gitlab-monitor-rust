@@ -31,6 +31,10 @@
     "targets": "all",
     "icon": [
       "icons/icon.ico"
+    ],
+    "resources": [
+      "../gitlab-config.example",
+      "../INSTALLATION-README.txt"
     ]
   }
 }

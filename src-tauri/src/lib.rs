@@ -33,11 +33,22 @@ pub fn run() {
         ])
         .setup(|app| {
             // Load configuration
-            let config = load_config().map_err(|e| {
-                eprintln!("Failed to load configuration: {}", e);
-                eprintln!("Please create a .env file with GITLAB_API_TOKEN and GITLAB_PROJECTS");
-                e
-            })?;
+            let config = match load_config() {
+                Ok(config) => config,
+                Err(e) => {
+                    eprintln!("Configuration Error:");
+                    eprintln!("{}", e);
+                    eprintln!("");
+                    eprintln!("The application will start but GitLab monitoring will not work until configuration is complete.");
+                    
+                    // Create a dummy config so the app can start
+                    config::GitLabConfig {
+                        api_token: String::new(),
+                        base_url: "https://gitlab.com".to_string(),
+                        projects: Vec::new(),
+                    }
+                }
+            };
 
             // HTTP client
             let client = reqwest::Client::new();
@@ -93,13 +104,21 @@ pub fn run() {
                 });
             }
 
-            // Background refresh task
+            // Background refresh task - only start if we have valid configuration
             let app_handle_bg = app.handle().clone();
             tokio::spawn(async move {
                 tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
-                println!("Starting GitLab releases background task...");
-
+                
                 if let Some(state) = app_handle_bg.try_state::<AppState>() {
+                    // Check if we have valid configuration
+                    if state.config.api_token.is_empty() || state.config.projects.is_empty() {
+                        println!("GitLab monitoring disabled - configuration incomplete");
+                        let _ = app_handle_bg.emit("config-error", "Configuration incomplete. Please edit the .env file with your GitLab settings.");
+                        return;
+                    }
+                    
+                    println!("Starting GitLab releases background task...");
+
                     if let Ok(initial_releases) = fetch_all_releases(&state).await {
                         let mut prev = state.previous_releases.lock().await;
                         *prev = initial_releases.clone();
@@ -111,16 +130,15 @@ pub fn run() {
 
                         let _ = app_handle_bg.emit("releases-loaded", &initial_releases);
                     }
-                }
 
-                let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(300));
-                interval.tick().await;
-
-                loop {
+                    // Auto-refresh every minute
+                    let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(60));
                     interval.tick().await;
-                    println!("Auto-refreshing GitLab releases...");
 
-                    if let Some(state) = app_handle_bg.try_state::<AppState>() {
+                    loop {
+                        interval.tick().await;
+                        println!("Auto-refreshing GitLab releases...");
+
                         if let Ok(new_releases) = fetch_all_releases(&state).await {
                             let previous_releases = state.previous_releases.lock().await;
                             let new_items =
