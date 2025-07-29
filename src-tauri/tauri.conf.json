@@ -16,7 +16,7 @@
         "visible": false,
         "skipTaskbar": true,
         "resizable": true,
-        "minimizable": true,
+        "minimizable": false,
         "maximizable": true,
         "center": true
       }
